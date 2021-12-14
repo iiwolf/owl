@@ -22,7 +22,7 @@ SBT, buffers, etc, will automatically fill it with the proper
 addresses for the given device (in case you were wondering, this is
 *exactly* why `OWLVariable`s exist: they allow to assign a single
 handle on the host, and translate it to different addresses when the
-per-device data are built). 
+per-device data are built).
 
 As such, all that is required to have different GPUs share in the same
 work is to a) give them a means of combining their partial results (a
@@ -42,7 +42,7 @@ list of CUDA device IDs that this context is supposed to be created
 over. In the first few examples we always passed `(nullptr,1)`, which
 is short-hand for "1 GPU, in default order" (ie, the first
 CUDA-capable GPU in the system; though later versions may change that
-to 'the most powerful one'). 
+to 'the most powerful one').
 
 In this example, all we need to do is change this to `(nullptr,0)`,
 which is short-hand for "anything you can find".
@@ -52,7 +52,7 @@ which is short-hand for "anything you can find".
 OWL gives user code the *option* to do multi-GPU, but does not enforce
 a specific way of how to do it. As such, it's the job of the user's
 owl device code (typically, the RayGen program) to determine which
-pixels each device wants to render. 
+pixels each device wants to render.
 
 The user can do that in any way it wants (eg, by interleaving pixels
 in a frame buffer, by rendering left-half vs right half, odd/even y
@@ -69,7 +69,7 @@ first device, to 1 on the second, etc). Note that unlike other
 variables this type will never get *set* on the host, but will always
 evaluate to the right value on each device.
 
-In this particular example, this is done as follows: 
+In this particular example, this is done as follows:
 
 First, in the `RayGenData` type we add two ints to hold device index and count:
 ```
@@ -108,8 +108,8 @@ As said above there are many ways of doing this; in this example, we
 simply launch the full frame buffer size across all devices (ie, every
 devices launches over all pixels), and then have each device simply
 drop/skip some of the work. To do this we divide the frame buffer into
-32-wide coluns pixels, and assign those round-robin to the different
-devices; then in the raygen program we simply take the current launhc
+32-wide columns pixels, and assign those round-robin to the different
+devices; then in the raygen program we simply take the current launch
 index, compute who is respsonsible for the given pixels, and drop them
 if these are to be rendered by a different GPU:
 
@@ -117,7 +117,7 @@ if these are to be rendered by a different GPU:
   const vec2i pixelID = owl::getLaunchIndex();
   int deviceThatIsResponsible = (pixeID.x>>5) % self.deviceCount;
   if (self.deviceIndex != deviceThatIsResponsible)
-    /* sombody else's job ... */ 
+    /* sombody else's job ... */
 	return;
 ```
 

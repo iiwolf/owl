@@ -24,7 +24,7 @@
 // external helper stuff for image output
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
-
+#include <chrono>
 #include <random>
 
 #define LOG(message)                                            \
@@ -568,15 +568,37 @@ int main(int ac, char **av)
   // ##################################################################
 
   LOG("launching ...");
+
+  // Start timer and launch
+  auto start = std::chrono::high_resolution_clock::now();
   owlRayGenLaunch2D(rayGen,fbSize.x,fbSize.y);
 
-  LOG("done with launch, writing picture ...");
+  // Stop and report time
+  auto stop = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+  LOG("--> t_trace = " << duration.count() << " ms;");
+
   // for host pinned mem it doesn't matter which device we query...
-  const uint32_t *fb
-    = (const uint32_t*)owlBufferGetPointer(frameBuffer,0);
+
+  // Download (?)
+  start = std::chrono::high_resolution_clock::now();
+  const uint32_t *fb = (const uint32_t*)owlBufferGetPointer(frameBuffer,0);
+  stop = std::chrono::high_resolution_clock::now();
+  duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+  LOG("--> t_download = " << duration.count() << " ms;");
+
+  // Write to image
+  start = std::chrono::high_resolution_clock::now();
   stbi_write_png(outFileName,fbSize.x,fbSize.y,4,
                  fb,fbSize.x*sizeof(uint32_t));
+
+  stop = std::chrono::high_resolution_clock::now();
+  duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+
+  LOG("--> t_write = " << duration.count() << " ms;");
+
   LOG_OK("written rendered frame buffer to file "<<outFileName);
+
 
   // ##################################################################
   // and finally, clean up
